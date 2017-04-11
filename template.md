@@ -22,9 +22,9 @@ ${relatively concise description of how people were affected by this}
 
 Action items should be achievable in short-medium term.
 
-- ${first item to help make this not happen again}
-- ${second item to help make this not happen again}
-- ${...}
+- [ ] ${first item to help make this not happen again}
+- [ ] ${second item to help make this not happen again}
+- [ ] ${...}
 
 
 ## Thanks
