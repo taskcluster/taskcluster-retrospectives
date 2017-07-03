@@ -15,5 +15,5 @@ merged and the retrospective will live in this repository.
 
 ## Updating Retrospectives
 
-If a document is merge into master and you wish to change some minor formatting or spelling, feel free. If you want to
+If a document has been merged into master and you wish to change some minor formatting or spelling, feel free. If you want to
 make a larger change, consider adding it as an addendum to the document in question.
