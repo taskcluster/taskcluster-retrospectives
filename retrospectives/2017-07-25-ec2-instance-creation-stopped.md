@@ -38,6 +38,8 @@ AWS replied just after midnight UTC:
 >  Service Team to review your request. This is to ensure that we can meet your
 >  needs while keeping existing infrastructure safe.
 
+The increase to 800TiB was approved at 2017-07-26T18:43.
+
 ## Fallout
 
 Failure to schedule new jobs caused backlogs and thus a tree closure. Note that
