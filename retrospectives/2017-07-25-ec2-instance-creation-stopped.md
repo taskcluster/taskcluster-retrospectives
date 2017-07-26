@@ -46,6 +46,7 @@ from landing patches, but not from testing them in try.
 
 ## Action Items
 
+* re-enable us-east-1 once the volume limit is raised
 * provide a way to measure total volume usage in a region (even just manually - doing mental sums in the AWS console is hard)
 * set up some kind of periodic monitoring of volume usage as compared to configured limits, with an alert when we get close
 * monitor and log instance termination reasons
