@@ -52,6 +52,7 @@ from landing patches, but not from testing them in try.
 * provide a way to measure total volume usage in a region (even just manually - doing mental sums in the AWS console is hard)
 * set up some kind of periodic monitoring of volume usage as compared to configured limits, with an alert when we get close
 * monitor and log instance termination reasons
+* [investigate better ways to get the IOPS we need](https://bugzilla.mozilla.org/show_bug.cgi?id=1385106) (these volumes are large not for the storage, but for the associated IOPS)
 
 ## Thanks
 
