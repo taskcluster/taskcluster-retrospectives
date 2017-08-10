@@ -48,10 +48,11 @@ from landing patches, but not from testing them in try.
 
 ## Action Items
 
-* re-enable us-east-1 once the volume limit is raised
-* provide a way to measure total volume usage in a region (even just manually - doing mental sums in the AWS console is hard)
-* set up some kind of periodic monitoring of volume usage as compared to configured limits, with an alert when we get close
-* monitor and log instance termination reasons
+* [DONE] re-enable us-east-1 once the volume limit is raised
+* [[UCOSP Proposal](https://github.com/taskcluster/taskcluster-rfcs/issues/87)] provide a way to measure total volume usage in a region (even just manually - doing mental sums in the AWS console is hard) 
+* [[UCOSP Proposal](https://github.com/taskcluster/taskcluster-rfcs/issues/87)] set up some kind of periodic monitoring of volume usage
+  * note that limits are not API-accessible, so automatically alerting on proximity to a limit is probably not worth the trouble
+* monitor and log instance termination reasons, leading to the ability to [bias against a region when new instances are being terminated for any reason](https://github.com/taskcluster/ec2-manager/issues/25)
 * [investigate better ways to get the IOPS we need](https://bugzilla.mozilla.org/show_bug.cgi?id=1385106) (these volumes are large not for the storage, but for the associated IOPS)
 
 ## Thanks
