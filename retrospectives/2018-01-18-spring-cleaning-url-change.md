@@ -30,6 +30,7 @@ than us-west-2. Trees were closed for the duration of the event.
 - [ ] [Add the updated URL](https://github.com/taskcluster/cloud-mirror/pull/38) to the `allowedPatterns` config in cloud-mirror and redeploy
 - [ ] Redeploy the queue change.
 - [ ] Monitor for spikes of 403 errors from services via Papertrail
+- [ ] Revert code changes when rolling back a deploy in heroku
 
 ## Thanks
 * jhford
