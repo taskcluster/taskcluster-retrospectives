@@ -18,6 +18,7 @@ with 403 errors to all incoming requests.
   - 2018-01-18 15:11:14 UTC ::::: jhford discovers that the error message indicates "URL does not validate" which points to the `allowedPatterns` configuration
   - 2018-01-18 15:19:22 UTC ::::: roll back queue deployment based on coincidence of time
   - 2018-01-18 15:27:42 UTC ::::: trees re-opened
+  - 2018-01-22 15:00ish UTC ::::: pmoore deploys queue, not realising code had not been reverted, and causes tree closure (philor closes trees) - pmoore rolls back in heroku, dustin pushes revert in queue
 
 ## Fallout
 
@@ -29,6 +30,7 @@ than us-west-2. Trees were closed for the duration of the event.
 - [ ] [Add the updated URL](https://github.com/taskcluster/cloud-mirror/pull/38) to the `allowedPatterns` config in cloud-mirror and redeploy
 - [ ] Redeploy the queue change.
 - [ ] Monitor for spikes of 403 errors from services via Papertrail
+- [ ] Revert code changes when rolling back a deploy in heroku
 
 ## Thanks
 * jhford
