@@ -8,7 +8,7 @@ As a result of a software bug, HTTP requests to many Taskcluster services that r
 ### Background
 
 HTTP requests to Taskcluster APIs are authenticated using [Hawk](https://github.com/hueniverse/hawk),
-The authentication process determines the [client](https://docs.taskcluster.net/manual/design/apis/hawk/clients) making the request, and that cloent's [scopes](https://docs.taskcluster.net/manual/design/apis/hawk/scopes) are uesd to determine whether the request can proceed.
+The authentication process determines the [client](https://docs.taskcluster.net/manual/design/apis/hawk/clients) making the request, and that client's [scopes](https://docs.taskcluster.net/manual/design/apis/hawk/scopes) are uesd to determine whether the request can proceed.
 There are some additional details, but in any case there are two phases to the access-control process: authenticate the client, then determine whether the client can make the request.
 If the first fails, the API returns a 401 response; for the second, a 403.
 
@@ -72,7 +72,8 @@ Version 5.0.0 was not widely deployed, and version 6.0.0 was released soon after
 
 ### Remediation
 
-We have no reason to think that this bug was exploited, but we used two approaches to verify this.
+We have no reason to think that this bug was exploited.
+We used two approaches to verify this.
 
 First, we scanned the Heroku service logs for 401 responses to non-GET methods and examined each one.
 We excluded GET because the bug only allows side-effects and GET requests do not have side effects.
