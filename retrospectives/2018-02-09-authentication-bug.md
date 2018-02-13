@@ -8,7 +8,7 @@ As a result of a software bug, HTTP requests to many Taskcluster services that r
 ### Background
 
 HTTP requests to Taskcluster APIs are authenticated using [Hawk](https://github.com/hueniverse/hawk),
-The authentication process determines the [client](https://docs.taskcluster.net/manual/design/apis/hawk/clients) making the request, and that client's [scopes](https://docs.taskcluster.net/manual/design/apis/hawk/scopes) are uesd to determine whether the request can proceed.
+The authentication process determines the [client](https://docs.taskcluster.net/manual/design/apis/hawk/clients) making the request, and that client's [scopes](https://docs.taskcluster.net/manual/design/apis/hawk/scopes) are used to determine whether the request can proceed.
 There are some additional details, but in any case there are two phases to the access-control process: authenticate the client, then determine whether the client can make the request.
 If the first fails, the API returns a 401 response; for the second, a 403.
 
