@@ -7,11 +7,11 @@ A change to the internal, unpublished ssh key naming convention in the aws-provi
 
 ## Background
 
-Taskcluster uses [Open Cloud Config (OCC)](https://github.com/mozilla-releng/OpenCloudConfig) to configure Windows instances before they can accept work from the queue. The [AWS provisioner](https://github.com/taskcluster/aws-provisioner) spins up instances in AWS based on the size and contents of the Taskcluster queue. OCC relies on data from the provisioner to properly configure Windows workers.
+Taskcluster uses [Open Cloud Config (OCC)](https://github.com/mozilla-releng/OpenCloudConfig) to configure Windows instances before they can accept work from the queue. The [AWS provisioner](https://github.com/taskcluster/aws-provisioner) spins up instances in AWS based on the size and contents of the Taskcluster queue. OCC relies on data from the provisioner to properly configure Windows instances to work as specific Windows worker types.
 
 ### The bug
 
-There are many different worker types. Historically the provisioner has used distinct ssh key pairs for each worker type. OCC relied on the name of the ssh key pair to determine which worker type it was setting up. The key pair name was static for a very long time, but there was never a contract or provisioner API endpoint associated with it.
+There are many different worker types. Historically the provisioner has used distinct ssh key pairs for each worker type. OCC relied on the name of the ssh key pair to determine which worker type it was setting up. The key pair name was static for a very long time, but there was never a contract or provisioner API endpoint associated specifically with the ssh key pair, although there were other endpoints that could have been used instead to determine the worker type.
 
 As part of adopting the new AWS spot pricing model, jhford landed a change to use a new, single, universal key pair per provisioner that applied to all workers. The new key had a new name, so after the new provisioner code was deployed to production on the morning of February 13, various OCC tasks related to the setup and maintenance of Windows instances in AWS started to fail.
 
@@ -31,19 +31,33 @@ Once that change was deployed and the test job backlog started to go down, [Aryx
 
 ### Remediation
 
-The fixes detailed above have dealt with the proximal issue, but this prolonged outage highlights bigger issues that need to be addressed
+The fixes detailed above have dealt with the proximal issue, but this prolonged outage highlights bigger issues that need to be addressed.
 
-#### Taskcluster / Relops communication
+#### Taskcluster / Relops communication and SLAs
 
-TBD
+These two teams need to have a better working relationship. Mozilla relies on the Taskcluster platform for Firefox CI, and Taskcluster relies on the Relops team to provide the Windows capacity to meet those demands. The major intersection point right now is the provisioner which spins up the Windows capacity. To that end, I've asked jhford to meet with grenade to go over the OCC code to make sure we are providing all the necessary, *supported* endpoints that OCC requires to properly configure Windows workers. This informal code audit should hopefully uncover any other areas where the code currently relies on unpublished behavior or side-effects.
+
+Knowing the interplay between the provisioner and OCC, it's important that we develop a better way to keep *both* teams informed when there are deployments to either tool. There should also be monitoring in place after provisioner deployments to ensure that work is still being scheduled and completed. It took over three hours after the provisioner deployment to even notice that something was wrong, and that's unacceptable.
+
+We also need to establish a defined SLA with the Relops team, especially in response to tree-closing events. The trees were closed for 14 hours before a non-manager from Relops attempted to assist. grenade was ill and should not have been expected to help out, but we are glad he did, otherwise the trees might still be closed. From the Taskcluster side, we need to raise the alarm more quickly when we need assitance, but this has highlighted grenade as a SPoF for supporting our Windows infrastructure.
 
 #### OCC and complexity
 
-TBD
+One of the reasons our Windows infrastructure is so hard to support is OCC. Windows configuration support has always been challenging, and in this respect OCC is no different. Members of the Taskcluster team found it hard to reason about the code when they tried to debug it in the absence of assistance from grenade.
+
+Windows instances configured via OCC also require up to 30 minutes to complete the configuration process and begin running tasks. This makes any debugging process where we need make Windows configuration changes much longer than necessary.
+
+We should examine whether OCC is meeting our current configuration needs &mdash; reliability, maintainability, debugability, and performance &mdash; and pursue alternatives if required.
+
+pmoore provided the counter-example of the Windows worker configuration for NSS that is configured using a [simple, linear, PowerShell script](https://github.com/taskcluster/generic-worker/blob/master/worker_types/nss-win2012r2/userdata). These workers are available within 5 minutes of starting up. Perhaps there are complexities that prevent us from using such a straightforward system, but we should investigate and make those trade-offs known. If we cannot switch, we should debug the start-up performance issue.
 
 #### Understanding the base AMI creation process
 
-TBD
+The [bug we used to track this outage](https://bugzilla.mozilla.org/show_bug.cgi?id=1372172) turned out not to be the real issue, but because we've had similar outages recently, it seemed like a good place to start. The root cause of that bug is still unknown. The script we use to recycle impaired Windows instances wallpapers over the symptom, but we need to debug the base AMI creation process to discover why all Windows instances eventually enter this impaired state. None of our non-Windows worker types have this type of issue.
+
+Unfortunately, the base AMI creation process for Windows is completely unknown. More than one person on the Taskcluster and Relops teams has likened the process to "magic."
+
+Q on the Relops team is responsible for creating the base AMIs for Windows. Q needs to meet with grenade and document/automate that process so that non-magicians can debug why these instances eventually become impaired.
 
 ## Timeline
   - 2018-02-13 13:18:43 UTC ::::: jhford deploys the single, universal ssh key pair change to ec2-manager
