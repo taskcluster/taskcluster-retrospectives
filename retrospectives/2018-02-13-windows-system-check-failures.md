@@ -1,16 +1,39 @@
-# Retrospective: Windows AMIs failing system checks}
+# Retrospective: Windows AMIs failing system checks
 #### Bugzilla Bug: [bug 1372172](https://bugzilla.mozilla.org/show_bug.cgi?id=1372172)
 
 ## Summary
 
-A change to the internal, unpublished ssh key naming convention in the aws-provisioner caused OCC processes on new Windows instances to fail when they could not determine their worker type.
+A change to the internal, unpublished ssh key naming convention in the aws-provisioner caused OCC processes on new Windows instances to fail when they could not determine their worker type from the ssh key name.
 
 ## Background
 
-${any information needed to understand the issue. retrospectives are shareable outside of the team, so try to make it understandable to someone with less context than us!}
+Taskcluster uses [Open Cloud Config (OCC)](https://github.com/mozilla-releng/OpenCloudConfig) to configure Windows instances before they can accept work from the queue. The [AWS provisioner](https://github.com/taskcluster/aws-provisioner) spins up instances in AWS based on the size and contents of the Taskcluster queue. OCC relies on data from the provisioner to properly configure Windows workers.
+
+### The bug
+
+There are many different worker types. OCC was relying on the name of the ssh key pair to determine which worker type it was setting up. The key pair name was static for a very long time, but there was never a contract or API endpoint associated with it.
+
+As part of adopting the new AWS spot pricing model, jhford landed a change to use a new, single, universal key pair per provisioner. The new key had a new name.  
+
+### Detection
+
+
+
+### Fix
+
+Because the Taskcluster team is only vaguely aware of how OCC works, and because RelOps resources were not available for large parts of the debugging timeline, the fix came in three parts.
+
+We have had other Windows outages due to the Windows impaired instance culling script not running, the most recent being [bug 1435503](https://bugzilla.mozilla.org/show_bug.cgi?id=1435503). jhford quickly found the first ssh key pair issue in the culling script and posted [a new version](https://bug1437973.bmoattachments.org/attachment.cgi?id=8950682).
+
+When the test job backlog did not go down even after the culling script was run and new instances started appearing, Taskcluster team member started digging into the OCC code and, with grenade's help,  eventually found the [second issue affecting test worker configuration](https://github.com/mozilla-releng/OpenCloudConfig/commit/d7d2df5a174087bad52e7d3636ae92e043f999f0).
+
+Once that change was deployed and the test job backlog started to go down, [Aryx noticed that we still had a build backlog](https://bugzilla.mozilla.org/show_bug.cgi?id=1438152). Now that we knew what to look for, grenade quickly found [the corresponding change for builders](https://github.com/mozilla-releng/OpenCloudConfig/commit/137c8c1b0e4b3927f15cf38ee4f9771894818221) and rolled out new AMIs.
+
+### Remediation
 
 
 ## Timeline
+  - 2018-02-13 13:18:43 UTC ::::: jhford deploys the single, universal ssh key pair change to ec2-manager
   - 2018-02-13 16:37:31 UTC ::::: Aryx reports heavy backlog of Windows tests in #taskcluster
   - 2018-02-13 16:48:42 UTC ::::: ebalazs (sheriff) closes inbound, autoland due to backlog
   - 2018-02-13 16:53:54 UTC ::::: dustin, jhford, pmoore begin investigating
@@ -39,7 +62,7 @@ ${any information needed to understand the issue. retrospectives are shareable o
   - 2018-02-14 12:32:07 UTC ::::: Aryx reports that Windows builds are not running - https://bugzilla.mozilla.org/show_bug.cgi?id=1438152
   - 2018-02-14 13:58:08 UTC ::::: grenade finds the corresponding workerType mismatch for builders
   - 2018-02-14 15:03:41 UTC ::::: grenade kicks off new Windows AMI deployment with the workerType fix
-  - 2018-02-14 16:09:41 UTC ::::: bhearsum reports that his Windows build job has started, indicating that we're starting to Windows build throughput
+  - 2018-02-14 16:09:41 UTC ::::: bhearsum reports that his Windows build job has started, indicating that we were starting to see Windows build throughput
   - 2018-02-14 17:41:43 UTC ::::: inbound and autoland reopen
 
 ## Fallout
@@ -47,8 +70,6 @@ ${any information needed to understand the issue. retrospectives are shareable o
 mozilla-inbound and autoland were closed for over 24 hours. While the try repo remained open, no Windows jobs were being being picked up during this time. Developers functionally lost a day of work.
 
 ## Action Items
-
-Action items should be achievable in short-medium term.
 
 - re-affirm communication between relops and Taskcluster teams, especially around usuable API endpoints and timing of deployments
 - audit OCC code to determine whether other non-published interfaces or side-effects of published interfaces are being used
@@ -63,7 +84,6 @@ Action items should be achievable in short-medium term.
 * John Ford
 * Jonas Finnemann Jensen
 * Kendall Libby
-* Mark Cornmesser
 * Peter Moore
 * Q Fortier
 * Rob Thijssen
