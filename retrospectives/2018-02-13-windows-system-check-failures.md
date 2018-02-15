@@ -99,7 +99,7 @@ mozilla-inbound and autoland were closed for over 24 hours. While the try repo r
 ## Action Items
 
 - re-affirm communication between relops and Taskcluster teams, especially around usuable API endpoints and timing of deployments
-- audit OCC code to determine whether other non-published interfaces or side-effects of published interfaces are being used
+- audit OCC code to determine whether other non-published interfaces or side-effects of published interfaces are being used. [Document that contract with the provisioner.](https://bugzil.la/1372906)
 - move impaired instance cron script to a hook, or at the very least onto managed hardware/instance/dyno
 - document the base AMI creation process to (hopefully) shine light on the root cause for bug 1372172
 
