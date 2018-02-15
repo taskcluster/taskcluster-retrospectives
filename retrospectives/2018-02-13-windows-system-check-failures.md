@@ -11,13 +11,13 @@ Taskcluster uses [Open Cloud Config (OCC)](https://github.com/mozilla-releng/Ope
 
 ### The bug
 
-There are many different worker types. OCC was relying on the name of the ssh key pair to determine which worker type it was setting up. The key pair name was static for a very long time, but there was never a contract or API endpoint associated with it.
+There are many different worker types. Historically the provisioner has used distinct ssh key pairs for each worker type. OCC relied on the name of the ssh key pair to determine which worker type it was setting up. The key pair name was static for a very long time, but there was never a contract or provisioner API endpoint associated with it.
 
-As part of adopting the new AWS spot pricing model, jhford landed a change to use a new, single, universal key pair per provisioner. The new key had a new name.  
+As part of adopting the new AWS spot pricing model, jhford landed a change to use a new, single, universal key pair per provisioner that applied to all workers. The new key had a new name, so after the new provisioner code was deployed to production on the morning of February 13, various OCC tasks related to the setup and maintenance of Windows instances in AWS started to fail.
 
 ### Detection
 
-
+Aryx first noticed the Windows test backlog and reported the issue in #taskcluster. The build backlog was not noticed until almost a day later once the test backlog had begun to clear.
 
 ### Fix
 
@@ -27,10 +27,23 @@ We have had other Windows outages due to the Windows impaired instance culling s
 
 When the test job backlog did not go down even after the culling script was run and new instances started appearing, Taskcluster team member started digging into the OCC code and, with grenade's help,  eventually found the [second issue affecting test worker configuration](https://github.com/mozilla-releng/OpenCloudConfig/commit/d7d2df5a174087bad52e7d3636ae92e043f999f0).
 
-Once that change was deployed and the test job backlog started to go down, [Aryx noticed that we still had a build backlog](https://bugzilla.mozilla.org/show_bug.cgi?id=1438152). Now that we knew what to look for, grenade quickly found [the corresponding change for builders](https://github.com/mozilla-releng/OpenCloudConfig/commit/137c8c1b0e4b3927f15cf38ee4f9771894818221) and rolled out new AMIs.
+Once that change was deployed and the test job backlog started to go down, [Aryx noticed that we still had a build backlog](https://bugzilla.mozilla.org/show_bug.cgi?id=1438152). The number of build relative to the number of tests is very small &mdash; one build triggers many tests &mdash; made this easy to overlook. Now that we knew what to look for, grenade quickly found [the corresponding change for builders](https://github.com/mozilla-releng/OpenCloudConfig/commit/137c8c1b0e4b3927f15cf38ee4f9771894818221) and rolled out new AMIs.
 
 ### Remediation
 
+The fixes detailed above have dealt with the proximal issue, but this prolonged outage highlights bigger issues that need to be addressed
+
+#### Taskcluster / Relops communication
+
+TBD
+
+#### OCC and complexity
+
+TBD
+
+#### Understanding the base AMI creation process
+
+TBD
 
 ## Timeline
   - 2018-02-13 13:18:43 UTC ::::: jhford deploys the single, universal ssh key pair change to ec2-manager
@@ -87,3 +100,4 @@ mozilla-inbound and autoland were closed for over 24 hours. While the try repo r
 * Peter Moore
 * Q Fortier
 * Rob Thijssen
+* Sebastian Hengst
