@@ -13,21 +13,21 @@ Taskcluster uses [Open Cloud Config (OCC)](https://github.com/mozilla-releng/Ope
 
 There are many different worker types. Historically the provisioner has used distinct ssh key pairs for each worker type. OCC relied on the name of the ssh key pair to determine which worker type it was setting up. The key pair name was static for a very long time, but there was never a contract or provisioner API endpoint associated specifically with the ssh key pair, although there were other endpoints that could have been used instead to determine the worker type.
 
-As part of adopting the new AWS spot pricing model, jhford landed a change to use a new, single, universal key pair per provisioner that applied to all workers. The new key had a new name, so after the new provisioner code was deployed to production on the morning of February 13, various OCC tasks related to the setup and maintenance of Windows instances in AWS started to fail.
+As part of adopting the new AWS spot pricing model, John landed a change to use a new, single, universal key pair per provisioner that applied to all workers. The new key had a new name, so after the new provisioner code was deployed to production on the morning of February 13, various OCC tasks related to the setup and maintenance of Windows instances in AWS started to fail.
 
 ### Detection
 
-Aryx first noticed the Windows test backlog and reported the issue in #taskcluster. The build backlog was not noticed until almost a day later once the test backlog had begun to clear.
+Sebastian first noticed the Windows test backlog and reported the issue in #taskcluster. The build backlog was not noticed until almost a day later once the test backlog had begun to clear.
 
 ### Fix
 
 Because the Taskcluster team is only vaguely aware of how OCC works, and because RelOps resources were not available for large parts of the debugging timeline, the fix came in three parts.
 
-We have had other Windows outages due to the Windows impaired instance culling script not running, the most recent being [bug 1435503](https://bugzilla.mozilla.org/show_bug.cgi?id=1435503). jhford quickly found the first ssh key pair issue in the culling script and posted [a new version](https://bug1437973.bmoattachments.org/attachment.cgi?id=8950682).
+We have had other Windows outages due to the Windows impaired instance culling script not running, the most recent being [bug 1435503](https://bugzilla.mozilla.org/show_bug.cgi?id=1435503). John quickly found the first ssh key pair issue in the culling script and posted [a new version](https://bug1437973.bmoattachments.org/attachment.cgi?id=8950682).
 
-When the test job backlog did not go down even after the culling script was run and new instances started appearing, Taskcluster team member started digging into the OCC code and, with grenade's help,  eventually found the [second issue affecting test worker configuration](https://github.com/mozilla-releng/OpenCloudConfig/commit/d7d2df5a174087bad52e7d3636ae92e043f999f0).
+When the test job backlog did not go down even after the culling script was run and new instances started appearing, Taskcluster team member started digging into the OCC code and, with Rob's help,  eventually found the [second issue affecting test worker configuration](https://github.com/mozilla-releng/OpenCloudConfig/commit/d7d2df5a174087bad52e7d3636ae92e043f999f0).
 
-Once that change was deployed and the test job backlog started to go down, [Aryx noticed that we still had a build backlog](https://bugzilla.mozilla.org/show_bug.cgi?id=1438152). The number of build relative to the number of tests is very small &mdash; one build triggers many tests &mdash; made this easy to overlook. Now that we knew what to look for, grenade quickly found [the corresponding change for builders](https://github.com/mozilla-releng/OpenCloudConfig/commit/137c8c1b0e4b3927f15cf38ee4f9771894818221) and rolled out new AMIs.
+Once that change was deployed and the test job backlog started to go down, [Sebastian noticed that we still had a build backlog](https://bugzilla.mozilla.org/show_bug.cgi?id=1438152). The number of build relative to the number of tests is very small &mdash; one build triggers many tests &mdash; made this easy to overlook. Now that we knew what to look for, Rob quickly found [the corresponding change for builders](https://github.com/mozilla-releng/OpenCloudConfig/commit/137c8c1b0e4b3927f15cf38ee4f9771894818221) and rolled out new AMIs.
 
 ### Remediation
 
@@ -35,7 +35,7 @@ The fixes detailed above have dealt with the proximal issue, but this prolonged 
 
 #### Taskcluster / Relops communication and SLAs
 
-These two teams need to have a better working relationship. Mozilla relies on the Taskcluster platform for Firefox CI, and Taskcluster relies on the Relops team to provide the Windows capacity to meet those demands. The major intersection point right now is the provisioner which spins up the Windows capacity. To that end, jhford will meet with grenade to go over the OCC code to make sure we are providing all the necessary, *supported* endpoints that OCC requires to properly configure Windows workers. This informal code audit should hopefully uncover any other areas where the code currently relies on unpublished behavior or side-effects.
+These two teams need to have a better working relationship. Mozilla relies on the Taskcluster platform for Firefox CI, and Taskcluster relies on the Relops team to provide the Windows capacity to meet those demands. The major intersection point right now is the provisioner which spins up the Windows capacity. To that end, John will meet with Rob to go over the OCC code to make sure we are providing all the necessary, *supported* endpoints that OCC requires to properly configure Windows workers. This informal code audit should hopefully uncover any other areas where the code currently relies on unpublished behavior or side-effects.
 
 Knowing the interplay between the provisioner and OCC, it's important that we develop a better way to keep *both* teams informed when there are deployments to either tool. There should also be monitoring in place after provisioner deployments to ensure that work is still being scheduled and completed. It took over three hours after the provisioner deployment to even notice that something was wrong, and that's unacceptable.
 
@@ -49,7 +49,7 @@ Windows instances configured via OCC also require up to 30 minutes to complete t
 
 We should examine whether OCC is meeting our current configuration needs &mdash; reliability, maintainability, debugability, and performance &mdash; and pursue alternatives if required.
 
-pmoore provided the counter-example of the Windows worker configuration for NSS that is configured using a [simple, linear, PowerShell script](https://github.com/taskcluster/generic-worker/blob/master/worker_types/nss-win2012r2/userdata). These workers are available within 5 minutes of starting up. Perhaps there are complexities that prevent us from using such a straightforward system, but we should investigate and make those trade-offs known. If we cannot switch, we should debug the start-up performance issue.
+Pete provided the counter-example of the Windows worker configuration for NSS that is configured using a [simple, linear, PowerShell script](https://github.com/taskcluster/generic-worker/blob/master/worker_types/nss-win2012r2/userdata). These workers are available within 5 minutes of starting up. Perhaps there are complexities that prevent us from using such a straightforward system, but we should investigate and make those trade-offs known. If we cannot switch, we should debug the start-up performance issue.
 
 #### Understanding the base AMI creation process
 
@@ -57,7 +57,7 @@ The [bug we used to track this outage](https://bugzilla.mozilla.org/show_bug.cgi
 
 Unfortunately, the base AMI creation process for Windows is completely unknown. More than one person on the Taskcluster and Relops teams has likened the process to "magic."
 
-Q on the Relops team is responsible for creating the base AMIs for Windows. Q needs to meet with grenade and document/automate that process so that non-magicians can debug why these instances eventually become impaired.
+Q on the Relops team is responsible for creating the base AMIs for Windows. Q needs to meet with Rob and document/automate that process so that non-magicians can debug why these instances eventually become impaired.
 
 ## Timeline
   - 2018-02-13 13:18:43 UTC ::::: jhford deploys the single, universal ssh key pair change to ec2-manager
