@@ -1,5 +1,5 @@
 # Retrospective: Credentials in logs - March 20, 2019
-#### Bugzilla Bug: https://bugzilla.mozilla.org/show\_bug.cgi?id=1536927
+#### Bugzilla Bug: [bug 1536927](https://bugzilla.mozilla.org/show_bug.cgi?id=1536927)
 
 ## Background
 
