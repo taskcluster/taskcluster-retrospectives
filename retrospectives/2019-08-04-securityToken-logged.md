@@ -42,11 +42,13 @@ Logging configuration is also more tightly controlled, with service logs going t
 
 Action items should be achievable in short-medium term.
 
-- [ ] ${first item to help make this not happen again}
-- [ ] ${second item to help make this not happen again}
-- [ ] ${...}
-
+- [ ] Audit current state of infrastructure
+- [ ] Enforce the expiration for securityToken
+- [ ] Switch to using centralized code for getting TC secrets (worker-runner)
+- [ ] Disable debug logging in production
+- [ ] Review current logging in services (including deprecated services)
 
 ## Thanks
 * @tomprince
 * @ameihm0912
+* @ajvb
