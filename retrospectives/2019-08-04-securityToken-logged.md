@@ -47,8 +47,12 @@ Action items should be achievable in short-medium term.
 - [ ] Switch to using centralized code for getting TC secrets (worker-runner)
 - [ ] Disable debug logging in production
 - [ ] Review current logging in services (including deprecated services)
+- [ ] Do not automatically log requests in go client
 
 ## Thanks
 * @tomprince
 * @ameihm0912
 * @ajvb
+* @imbstack
+* @walac
+* @coop
