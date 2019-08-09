@@ -42,12 +42,12 @@ Logging configuration is also more tightly controlled, with service logs going t
 
 Action items should be achievable in short-medium term.
 
-- [ ] Audit current state of infrastructure
-- [ ] Enforce the expiration for securityToken
-- [ ] Switch to using centralized code for getting TC secrets (worker-runner)
-- [ ] Disable debug logging in production
-- [ ] Review current logging in services (including deprecated services)
-- [ ] Do not automatically log requests in go client
+- [ ] [Audit current state of infrastructure](https://bugzilla.mozilla.org/show_bug.cgi?id=1572760)
+  -  Review current logging in services (including deprecated services)
+- [ ] [Enforce the expiration for securityToken](https://bugzilla.mozilla.org/show_bug.cgi?id=1572761)
+- [ ] [Switch to using centralized code for getting TC secrets (worker-runner)](https://bugzilla.mozilla.org/show_bug.cgi?id=1572762)
+- [ ] [Disable debug logging in production](https://bugzilla.mozilla.org/show_bug.cgi?id=1572763)
+- [ ] [Do not automatically log requests in go client](https://bugzilla.mozilla.org/show_bug.cgi?id=1572764)
 
 ## Thanks
 * @tomprince
