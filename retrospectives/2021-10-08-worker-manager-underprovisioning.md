@@ -46,10 +46,11 @@ Action items should be achievable in short-medium term.
 - [ ] Monitor the number of workers created per [minute/hour]? Alert on low numbers?
   - Is this already a tracked metric? If not, how do we get it?
 - [ ] Change the provisioner code to crash the process if loop-interference is seen repeatedly?
+  - worker-manager work is tracked here: https://github.com/taskcluster/taskcluster/issues/5003
 
 
 ## Thanks
-- @aki
+- @aki / @escapewindow
 - @jwhitlock
 - @owlish
 - @mostlygeek
