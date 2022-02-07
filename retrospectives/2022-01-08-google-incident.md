@@ -108,10 +108,11 @@ Treestatus access was intermittently broken; trees could not be opened or closed
 
 ## Action Items
 
-- [ ] ramp Taskcluster and CloudOps teams back up on the platform during the H1 sprints
-- [ ] start a Taskcluster production runbook in H1
-- [ ] add heartbeat monitoring during the H1 sprints
-- [ ] bring sheriffs, releng, relops, cloudops, taskcluster together in cross-team management-level meetings in H1
+- [ ] (tc, cloudops teams) ramp Taskcluster and CloudOps teams back up on the platform during the H1 sprints
+- [ ] (cloudops, tc, releng) start a Taskcluster production runbook in H1
+- [ ] (tc team) add heartbeat monitoring during the H1 sprints
+- [ ] (tc team) identify places where the services can be more robust against network disruptions in H1
+- [ ] (aki) bring sheriffs, releng, relops, cloudops, taskcluster together in cross-team management-level meetings in H1
 
 ## Thanks
 - @archaeopteryx
